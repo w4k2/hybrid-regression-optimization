@@ -201,7 +201,7 @@ for db_idx, filename in enumerate(datasets):
     Plot distributions
     """
     mu = .001
-    bw_method = 2
+    bw_method = 'silverman'
     maxval = 0
 
     # Random
@@ -266,12 +266,12 @@ for db_idx, filename in enumerate(datasets):
     maxval *= 1.1
 
     ax[db_idx,1].scatter([np.mean(y[c==0])], [maxval], c='black', marker='x')
-    ax[db_idx,1].scatter([np.mean(y[c!=0])], [maxval], c='green', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,0])], [maxval], c='blue', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,1])], [maxval], c='blue', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,2])], [maxval], c='red', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,3])], [maxval], c='red', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,4])], [maxval], c='red', marker='x')
+    # ax[db_idx,1].scatter([np.mean(y[c!=0])], [maxval], c='green', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,0])], [maxval], c='blue', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,1])], [maxval], c='blue', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,2])], [maxval], c='red', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,3])], [maxval], c='red', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,4])], [maxval], c='red', marker='x')
 
 
     ax[db_idx,1].legend(frameon=False, fontsize=8)
