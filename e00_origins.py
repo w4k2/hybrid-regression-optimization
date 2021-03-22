@@ -14,7 +14,14 @@ datasets = {
     'US26_G': ('U26G', 83, 'US')
 }
 
-fig, ax = plt.subplots(len(datasets), 1, figsize=(9,6))
+xlims = [
+    (1200, 1600),
+    (1600, 2200),
+    (1100, 1500),
+    (1800, 2200)
+]
+
+fig, ax = plt.subplots(len(datasets), 1, figsize=(8,6))
 
 # Iterate datasets
 for db_idx, filename in enumerate(datasets):
@@ -30,13 +37,11 @@ for db_idx, filename in enumerate(datasets):
     # Get base solution
     base_solution_idx = np.where(c==1)[0][-1]
 
-    random_solutions = y[c==0]
+    ran_solutions = y[c==0]
     ilp_solutions = y[c==1]
-    heur_solutions = y[c==2]
-
-    mean_ran = np.mean(random_solutions)
-    mean_ilp = np.mean(ilp_solutions)
-    mean_heu = np.mean(heur_solutions)
+    heu_solutions = y[c==2]
+    opt_solutions = y[c!=0]
+    all_solutions = y
 
     # Baseline
     ax[db_idx].scatter([y[base_solution_idx]], [0], color='black', marker='x')
@@ -44,18 +49,24 @@ for db_idx, filename in enumerate(datasets):
     """
     Plot distributions
     """
-    proba = np.linspace(1000,2250, 1000)
+    proba = np.linspace(*xlims[db_idx], 1000)
 
-    ran_den = stats.gaussian_kde(random_solutions.tolist(),
+    ran_den = stats.gaussian_kde(ran_solutions.tolist(),
                                  bw_method='silverman')(proba)
     ran_heu = stats.gaussian_kde(ilp_solutions.tolist(),
                                  bw_method='silverman')(proba)
-    ran_ilp = stats.gaussian_kde(heur_solutions.tolist(),
+    ran_ilp = stats.gaussian_kde(heu_solutions.tolist(),
+                                 bw_method='silverman')(proba)
+    ran_opt = stats.gaussian_kde(opt_solutions.tolist(),
+                                 bw_method='silverman')(proba)
+    ran_all = stats.gaussian_kde(all_solutions.tolist(),
                                  bw_method='silverman')(proba)
 
     ax[db_idx].plot(proba, ran_den, c='black', label="RAN", lw=1)
-    ax[db_idx].plot(proba, ran_heu, c='green', label="HEU", lw=1)
+    ax[db_idx].plot(proba, ran_heu, c='green', label="HEU", lw=1, ls="-.")
     ax[db_idx].plot(proba, ran_ilp, c='green', label="ILP", lw=1, ls=":")
+    ax[db_idx].plot(proba, ran_opt, c='green', label="OPT", lw=1, ls="-")
+    ax[db_idx].plot(proba, ran_all, c='red', label="ALL", lw=1, ls="-")
 
     # Calculate xlim
     cent = y[base_solution_idx]
@@ -72,4 +83,5 @@ for db_idx, filename in enumerate(datasets):
 
     plt.tight_layout()
     plt.savefig("foo.png")
+    plt.savefig("figures/origins.png")
 plt.savefig("figures/origins.eps")
