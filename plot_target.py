@@ -68,55 +68,56 @@ for db_idx, filename in enumerate(datasets):
     Plot distributions
     """
     mu = .1
-    bw_method = 1
+    bw_method = 'silverman'
+    n_bins = 1000
 
     maxval=0
 
     # Random
     density = stats.gaussian_kde(y[c==0].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='black', label="random", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
 
     # Heuristics and ILP
     density = stats.gaussian_kde(y[c!=0].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='green', label="heuristics and ILP", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
 
     # AWF
     density = stats.gaussian_kde(opts[:,0].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='blue', ls=":", label="AWF", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
 
     # BWF
     density = stats.gaussian_kde(opts[:,1].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='blue', ls="--", label="BWF", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
 
     # A
     density = stats.gaussian_kde(opts[:,2].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='red', ls=":", label="A", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
 
     # O
     density = stats.gaussian_kde(opts[:,3].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='red', ls="--", label="O", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
 
     # R
     density = stats.gaussian_kde(opts[:,4].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, 100)
+    proba = np.linspace(1000,2500, n_bins)
     val = density(proba)*mu
     ax[db_idx,1].plot(proba, val, c='red', ls="-", label="R", lw=1)
     maxval = maxval if np.max(val) < maxval else np.max(val)
@@ -125,12 +126,12 @@ for db_idx, filename in enumerate(datasets):
     maxval *= 1.1
 
     ax[db_idx,1].scatter([np.mean(y[c==0])], [maxval], c='black', marker='x')
-    ax[db_idx,1].scatter([np.mean(y[c!=0])], [maxval], c='green', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,0])], [maxval], c='blue', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,1])], [maxval], c='blue', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,2])], [maxval], c='red', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,3])], [maxval], c='red', marker='x')
-    ax[db_idx,1].scatter([np.mean(opts[:,4])], [maxval], c='red', marker='x')
+    # ax[db_idx,1].scatter([np.mean(y[c!=0])], [maxval], c='green', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,0])], [maxval], c='blue', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,1])], [maxval], c='blue', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,2])], [maxval], c='red', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,3])], [maxval], c='red', marker='x')
+    # ax[db_idx,1].scatter([np.mean(opts[:,4])], [maxval], c='red', marker='x')
 
 
     ax[db_idx,1].legend(frameon=False, fontsize=8)
