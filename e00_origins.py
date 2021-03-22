@@ -21,7 +21,7 @@ xlims = [
     (1800, 2200)
 ]
 
-fig, ax = plt.subplots(len(datasets), 1, figsize=(8,6))
+fig, ax = plt.subplots(len(datasets), 1, figsize=(8,8))
 
 # Iterate datasets
 for db_idx, filename in enumerate(datasets):
@@ -63,9 +63,9 @@ for db_idx, filename in enumerate(datasets):
                                  bw_method='silverman')(proba)
 
     ax[db_idx].plot(proba, ran_den, c='black', label="RAN", lw=1)
+    ax[db_idx].plot(proba, ran_opt, c='green', label="OPT", lw=1, ls="-")
     ax[db_idx].plot(proba, ran_heu, c='green', label="HEU", lw=1, ls="-.")
     ax[db_idx].plot(proba, ran_ilp, c='green', label="ILP", lw=1, ls=":")
-    ax[db_idx].plot(proba, ran_opt, c='green', label="OPT", lw=1, ls="-")
     ax[db_idx].plot(proba, ran_all, c='red', label="ALL", lw=1, ls="-")
 
     # Calculate xlim
