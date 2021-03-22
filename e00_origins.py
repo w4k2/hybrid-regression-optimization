@@ -3,17 +3,6 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.stats import ttest_ind
 
-# Load calculated results for top Q
-optims = {
-    'E28A': np.genfromtxt("wfscores/E28A.txt", skip_header=1),
-    'E28G': np.genfromtxt("wfscores/E28G.txt", skip_header=1),
-    'U26A': np.genfromtxt("wfscores/US26A.txt", skip_header=1),
-    'U26G': np.genfromtxt("wfscores/US26G.txt", skip_header=1),
-}
-q = optims['E28A'].shape[0]
-alpha = .05
-print("Q = %i optims" % q)
-
 # Store datasets info
 # r - 0
 # a - 1
@@ -38,15 +27,12 @@ for db_idx, filename in enumerate(datasets):
     c = ds[:,-2]
     y = ds[:,-1]
 
-    print("\n# Dataset", filename, dbname, f, ds.shape, X.shape, c.shape, y.shape)
-
     # Get base solution
     base_solution_idx = np.where(c==1)[0][-1]
-    print("Base solution - %5.2f - %i" % (y[base_solution_idx], base_solution_idx))
 
-    random_solutions = y[c==0][:q]
-    ilp_solutions = y[c==1][:q]
-    heur_solutions = y[c==2][:q]
+    random_solutions = y[c==0]
+    ilp_solutions = y[c==1]
+    heur_solutions = y[c==2]
 
     mean_ran = np.mean(random_solutions)
     mean_ilp = np.mean(ilp_solutions)
@@ -83,8 +69,6 @@ for db_idx, filename in enumerate(datasets):
     for a in [ax[db_idx]]:
         a.spines['right'].set_visible(False)
         a.spines['top'].set_visible(False)
-        #a.spines['bottom'].set_visible(False)
-        #a.spines['left'].set_visible(False)
 
     plt.tight_layout()
     plt.savefig("foo.png")
