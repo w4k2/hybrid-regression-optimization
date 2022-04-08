@@ -73,7 +73,7 @@ for db_idx, filename in enumerate(datasets):
     ax[db_idx].grid(ls=":")
     ax[db_idx].set_title(dbname, fontsize=10)
     ax[db_idx].legend(frameon=False, fontsize=8)
-    ax[db_idx].set_xlabel("Accepted Traffic", fontsize=8)
+    ax[db_idx].set_xlabel("Accepted Traffic [NTU]", fontsize=8)
     ax[db_idx].set_ylabel("kernel-density", fontsize=8)
     ax[db_idx].set_xlim(np.min(proba), np.max(proba))
 

@@ -8,13 +8,17 @@ optims = {
     'U26A': np.genfromtxt("wfscores/US26A.txt", skip_header=1),
     'U26G': np.genfromtxt("wfscores/US26G.txt", skip_header=1),
 }
-q = optims['E28A'].shape[0]
-
-print(q)
 
 # r - 0
 # a - 1
 # b - 2
+
+xlims = [
+    (1200, 1600),
+    (1400, 2100),
+    (1050, 1450),
+    (1700, 2100)
+]
 
 datasets = {
     'Euro28_A': ('E28A', 81, 'Euro'),
@@ -23,7 +27,7 @@ datasets = {
     'US26_G': ('U26G', 83, 'US')
 }
 
-fig, ax = plt.subplots(len(datasets), 2, figsize=(12,12))
+fig, ax = plt.subplots(len(datasets), 1, figsize=(8,8))
 
 # Iterate datasets
 for db_idx, filename in enumerate(datasets):
@@ -41,138 +45,53 @@ for db_idx, filename in enumerate(datasets):
     # Get base solution
     base_solution = np.where(c==1)[0][-1]
 
-    # Print random solutions
-    ax[db_idx,0].scatter(y[c==0], c[c==0].astype(int),
-                       c='black', s = 25, alpha=.25)
-
-    # Print ILP and heuristics
-    ax[db_idx,0].scatter(y[c!=0], c[c!=0].astype(int),
-                       c='green', s = 25, alpha=.25)
-
-    # Print base solution
-    ax[db_idx,0].vlines(y[base_solution], -1, 8, color='black', ls=":", lw=1)
-
-    # Print opts
-    alphas = np.linspace(1,.1,q)
-    for i in range(q):
-        ax[db_idx,0].scatter(opts[i,0], 3, c='blue', alpha=.25)
-        ax[db_idx,0].scatter(opts[i,1], 4, c='blue', alpha=.25)
-        ax[db_idx,0].scatter(opts[i,2], 5, c='red', alpha=.25)
-        ax[db_idx,0].scatter(opts[i,3], 6, c='red', alpha=.25)
-        ax[db_idx,0].scatter(opts[i,4], 7, c='red', alpha=.25)
-
-    # Set title
-    ax[db_idx,0].set_title(filename, fontsize=10)
-
     """
     Plot distributions
     """
-    mu = .1
     bw_method = 'silverman'
-    n_bins = 1000
 
     maxval=0
 
+    proba = np.linspace(*xlims[db_idx], 1000)
+
+    """
+    ax[db_idx].scatter(np.max(y[c==0]), 0, marker='x', c='black')
+    ax[db_idx].scatter(np.max(y[c!=0]), 0, marker='x', c='green')
+    ax[db_idx].scatter(np.max(opts[:,0]), 0, marker='x', c='blue')
+    ax[db_idx].scatter(np.max(opts[:,1]), 0, marker='x', c='blue')
+    ax[db_idx].scatter(np.max(opts[:,2]), 0, marker='x', c='red')
+    ax[db_idx].scatter(np.max(opts[:,4]), 0, marker='x', c='red')
+    ax[db_idx].scatter(np.max(opts[:,3]), 0, marker='x', c='red')
+    """
+
     # Random
-    density = stats.gaussian_kde(y[c==0].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='black', label="random", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
+    ran_val = stats.gaussian_kde(y[c==0].tolist(),bw_method=bw_method)(proba)
+    opt_val = stats.gaussian_kde(y[c!=0].tolist(),bw_method=bw_method)(proba)
+    arc_val = stats.gaussian_kde(opts[:,0].tolist(),bw_method=bw_method)(proba)
+    aroc_val = stats.gaussian_kde(opts[:,1].tolist(),bw_method=bw_method)(proba)
+    a_val = stats.gaussian_kde(opts[:,2].tolist(),bw_method=bw_method)(proba)
+    r_val = stats.gaussian_kde(opts[:,4].tolist(),bw_method=bw_method)(proba)
+    o_val = stats.gaussian_kde(opts[:,3].tolist(),bw_method=bw_method)(proba)
 
-    # Heuristics and ILP
-    density = stats.gaussian_kde(y[c!=0].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='green', label="heuristics and ILP", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
-
-    # AWF
-    density = stats.gaussian_kde(opts[:,0].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='blue', ls=":", label="AWF", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
-
-    # BWF
-    density = stats.gaussian_kde(opts[:,1].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='blue', ls="--", label="BWF", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
-
-    # A
-    density = stats.gaussian_kde(opts[:,2].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='red', ls=":", label="A", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
-
-    # O
-    density = stats.gaussian_kde(opts[:,3].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='red', ls="--", label="O", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
-
-    # R
-    density = stats.gaussian_kde(opts[:,4].tolist(),bw_method=bw_method)
-    proba = np.linspace(1000,2500, n_bins)
-    val = density(proba)*mu
-    ax[db_idx,1].plot(proba, val, c='red', ls="-", label="R", lw=1)
-    maxval = maxval if np.max(val) < maxval else np.max(val)
-
-
-    maxval *= 1.1
-
-    ax[db_idx,1].scatter([np.mean(y[c==0])], [maxval], c='black', marker='x')
-    # ax[db_idx,1].scatter([np.mean(y[c!=0])], [maxval], c='green', marker='x')
-    # ax[db_idx,1].scatter([np.mean(opts[:,0])], [maxval], c='blue', marker='x')
-    # ax[db_idx,1].scatter([np.mean(opts[:,1])], [maxval], c='blue', marker='x')
-    # ax[db_idx,1].scatter([np.mean(opts[:,2])], [maxval], c='red', marker='x')
-    # ax[db_idx,1].scatter([np.mean(opts[:,3])], [maxval], c='red', marker='x')
-    # ax[db_idx,1].scatter([np.mean(opts[:,4])], [maxval], c='red', marker='x')
-
-
-    ax[db_idx,1].legend(frameon=False, fontsize=8)
-
-    tax = ax[db_idx,0].twinx()
-    tax.set_yticks([0,1,2,3,4,5,6,7])
-    ax[db_idx,0].set_yticks([0,1,2,3,4,5,6,7])
-    ax[db_idx,0].set_yticklabels(["random", "heuristics", "ILP", "AWF", "BWF", "A", "O", "R"], fontsize=8)
-    tax.set_yticklabels([
-        int(np.max(y[c==0])),
-        int(np.max(y[c==1])),
-        int(np.max(y[c==2])),
-        int(np.max(opts[:,0])),
-        int(np.max(opts[:,1])),
-        int(np.max(opts[:,2])),
-        int(np.max(opts[:,3])),
-        int(np.max(opts[:,4]))], fontsize=8)
-    ax[db_idx,0].grid(ls=":")
-    ax[db_idx,0].set_ylim(-1,8)
-    tax.set_ylim(-1,8)
-
-    ax[db_idx,0].set_axisbelow(True)
-    ax[db_idx,0].set_xlabel("Accepted Traffic", fontsize=8)
-    ax[db_idx,1].set_xlabel("Accepted Traffic", fontsize=8)
+    ax[db_idx].plot(proba, arc_val, c='blue', ls=":", label="ARC [%.0f]" % np.max(opts[:,0]), lw=1)
+    ax[db_idx].plot(proba, aroc_val, c='blue', ls="--", label="AROC [%.0f]" % np.max(opts[:,1]), lw=1)
+    ax[db_idx].plot(proba, ran_val, c='black', label="RAN [%.0f]" % np.max(y[c==0]), lw=1)
+    ax[db_idx].plot(proba, opt_val, c='green', label="OPT [%.0f]" % np.max(y[c!=0]), lw=1)
+    ax[db_idx].plot(proba, a_val, c='red', ls=":", label="A [%.0f]" % np.max(opts[:,2]), lw=1)
+    ax[db_idx].plot(proba, r_val, c='red', ls="-", label="R [%.0f]" % np.max(opts[:,4]), lw=1)
+    ax[db_idx].plot(proba, o_val, c='red', ls="--", label="O [%.0f]" % np.max(opts[:,3]), lw=1)
 
     # Calculate xlim
-    cent = y[base_solution]
-    ma = np.max([np.max(y), np.max(opts)])
-    dif = (ma-cent)*1.3
-    ax[db_idx,0].set_xlim(cent-dif, cent+dif)
-    ax[db_idx,1].set_xlim(cent-dif, cent+dif)
-    ax[db_idx,1].set_title('Target function distribution', fontsize=10)
-    ax[db_idx,1].set_yticks([])
+    ax[db_idx].grid(ls=":")
+    ax[db_idx].set_title(dbname, fontsize=10)
+    ax[db_idx].legend(frameon=False, fontsize=8, loc=2, ncol=4)
+    ax[db_idx].set_xlabel("Accepted Traffic", fontsize=8)
+    ax[db_idx].set_ylabel("kernel-density", fontsize=8)
+    ax[db_idx].set_xlim(np.min(proba), np.max(proba))
 
-    ax[db_idx,0].text(cent, 4, 'baseline', fontsize = 8, rotation=-90, va='center')
-
-    for a in [ax[db_idx,0], ax[db_idx,1], tax]:
+    for a in [ax[db_idx]]:
         a.spines['right'].set_visible(False)
         a.spines['top'].set_visible(False)
-        a.spines['bottom'].set_visible(False)
-        a.spines['left'].set_visible(False)
 
 
     plt.tight_layout()

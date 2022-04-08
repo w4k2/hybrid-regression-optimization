@@ -11,11 +11,11 @@ from scipy.stats import ttest_rel
 
 np.set_printoptions(precision=3)
 
-# Definicja metryki odciętej
+# Crop-metric definition
 def cevs(y_true, y_pred):
     return np.clip(explained_variance_score(y_true, y_pred), 0, 1)
 
-# Przygotowujemy parametry przetwarzania
+# Preparing processing parameters
 n_best_kaos = 10
 R, O = (0, 1)
 mlp_params = {
@@ -48,7 +48,7 @@ Experimental loop
 """
 for filename in datasets:
     # Load dataset
-    dbname, f, kao = datasets[filename] # kao - identyfikator kangurka
+    dbname, f, kao = datasets[filename] # kao - tid
     ds = np.load("datasets/%s.npy" % dbname, allow_pickle=True)
 
     # Establish X, y
@@ -56,7 +56,7 @@ for filename in datasets:
     y_cat = ds[:,-2].astype(int)    # flatten categories
     y_cat[y_cat==2] = 1             # spłaszczamy kategorie [r=0, o=1]
     y_reg = ds[:,-1]                # regression labels
-    X_kao = np.load('kangurki/%s.npy' % kao) # kangurki
+    X_kao = np.load('t_samples/%s.npy' % kao) # t_samples
 
     print("X", X.shape, "y_cat", y_cat.shape, "y_reg", y_reg.shape,
           "X_kao", X_kao.shape)
@@ -167,130 +167,3 @@ for filename in datasets:
         print(line_a, "\\\\")
         print(line_b, "\\\\")
         print(line_c, "\\\\")
-
-    # exit()
-
-    """
-    print(np.mean(reg_scores, axis=0))
-    print("\nCategorical classifier")
-    print("%.3f (%.2f)" % (np.mean(clf_scores), np.std(clf_scores)))
-    print("\nWF regressors # [WFA WFB] x [A R O]")
-    print(np.mean(wf_reg_scores, axis=0))
-
-    # Zbieramy informacje z zespołów
-    est_a_preds = np.mean(
-        np.array([est.predict(X) for est in a_ensemble]), axis=0)
-    est_r_preds = np.mean(
-        np.array([est.predict(X) for est in r_ensemble]), axis=0)
-    est_o_preds = np.mean(
-        np.array([est.predict(X) for est in o_ensemble]), axis=0)
-    est_c_probas = np.mean(
-        np.array([est.predict_proba(X) for est in c_ensemble]), axis=0)
-    est_c_preds = np.argmax(est_c_probas, axis=1)
-
-    # AWF - ważymy regresory R i O probą z klasyfikatora C
-    awf_y_pred = (
-        est_r_preds * est_c_probas[:,0] + est_o_preds * est_c_probas[:,1]
-    )
-
-    # BWF - wynik AWF uśredniamy z regresorem A
-    bwf_y_pred = (awf_y_pred + est_a_preds) / 2
-
-    # Wyniki ogólne
-    print("A %.3f" % metric_reg(y, est_a_preds))
-    print("R %.3f" % metric_reg(y[c==R], est_r_preds[c==R]))
-    print("O %.3f" % metric_reg(y[c==O], est_o_preds[c==O]))
-    print("C %.3f" % metric_clf(c, est_c_preds))
-
-    print("AWF-A %.3f" % metric_reg(y, awf_y_pred))
-    print("AWF-R %.3f" % metric_reg(y[c==R], awf_y_pred[c==R]))
-    print("AWF-O %.3f" % metric_reg(y[c==O], awf_y_pred[c==O]))
-
-    print("BWF-A %.3f" % metric_reg(y, bwf_y_pred))
-    print("BWF-R %.3f" % metric_reg(y[c==R], bwf_y_pred[c==R]))
-    print("BWF-O %.3f" % metric_reg(y[c==O], bwf_y_pred[c==O]))
-
-    # Kangurze rezultaty
-    est_a_preds = np.mean(
-        np.array([est.predict(X_kao) for est in a_ensemble]), axis=0)
-    est_r_preds = np.mean(
-        np.array([est.predict(X_kao) for est in r_ensemble]), axis=0)
-    est_o_preds = np.mean(
-        np.array([est.predict(X_kao) for est in o_ensemble]), axis=0)
-    #est_c_preds = np.array([est.predict(X) for est in c_ensemble])
-    est_c_probas = np.mean(
-        np.array([est.predict_proba(X_kao) for est in c_ensemble]), axis=0)
-    est_c_preds = np.argmax(est_c_probas, axis=1)
-
-    # AWF - ważymy regresory R i O probą z klasyfikatora C
-    awf_y_pred = est_r_preds * est_c_probas[:,0] + est_o_preds * est_c_probas[:,1]
-
-    # BWF - wynik AWF uśredniamy z regresorem A
-    bwf_y_pred = (awf_y_pred + est_a_preds) / 2
-
-    # A
-    a_pred = est_a_preds
-
-    # R
-    r_pred = est_r_preds
-
-    # O
-    o_pred = est_o_preds
-
-    # Rozkład predykowanych kategorii
-    print(np.unique(est_c_preds, return_counts=True)[1]/bwf_y_pred.shape)
-
-    X_kao_candidates = X_kao[est_c_preds==O]
-    awf_candidates = awf_y_pred[est_c_preds==O]
-    bwf_candidates = bwf_y_pred[est_c_preds==O]
-    X_aro_candidates = X_kao
-
-    a_candidates = a_pred
-    r_candidates = r_pred
-    o_candidates = o_pred
-
-    awf_idx = np.argsort(-awf_candidates)[:n_best_kaos]
-    bwf_idx = np.argsort(-bwf_candidates)[:n_best_kaos]
-    a_idx = np.argsort(-a_candidates)[:n_best_kaos]
-    r_idx = np.argsort(-r_candidates)[:n_best_kaos]
-    o_idx = np.argsort(-o_candidates)[:n_best_kaos]
-
-    print("AWF candidates")
-    print(awf_idx)
-    print(awf_candidates[awf_idx])
-
-    np.save("results/%s-awf-X" % filename, X_kao_candidates[awf_idx])
-    np.save("results/%s-awf-y" % filename, awf_candidates[awf_idx])
-
-    print("BWF candidates")
-    print(bwf_idx)
-    print(bwf_candidates[bwf_idx])
-
-    np.save("results/%s-bwf-X" % filename, X_kao_candidates[bwf_idx])
-    np.save("results/%s-bwf-y" % filename, bwf_candidates[bwf_idx])
-
-
-    print("A candidates")
-    print(a_idx)
-    print(a_candidates[a_idx])
-
-    np.save("results/%s-a-X" % filename, X_aro_candidates[a_idx])
-    np.save("results/%s-a-y" % filename, a_candidates[a_idx])
-
-
-    print("R candidates")
-    print(r_idx)
-    print(r_candidates[r_idx])
-
-    np.save("results/%s-r-X" % filename, X_aro_candidates[r_idx])
-    np.save("results/%s-r-y" % filename, r_candidates[r_idx])
-
-
-    print("O candidates")
-    print(o_idx)
-    print(o_candidates[o_idx])
-
-    np.save("results/%s-o-X" % filename, X_aro_candidates[o_idx])
-    np.save("results/%s-o-y" % filename, o_candidates[o_idx])
-    """
-    #exit()

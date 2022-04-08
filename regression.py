@@ -45,13 +45,13 @@ metric_clf = balanced_accuracy_score
 # Iterujemy zbiory danych
 for filename in datasets:
     # Load dataset
-    dbname, f, kao = datasets[filename] # kao - identyfikator kangurka
+    dbname, f, kao = datasets[filename] # kao - tid
     ds = np.load("datasets/%s.npy" % dbname, allow_pickle=True)
     X = ds[:,:-2]               # dane
     c = ds[:,-2].astype(int)    # kategorie
     c[c==2] = 1                 # spłaszczamy kategorie [r=0, o=1]
     y = ds[:,-1]                # etykiety
-    X_kao = np.load('kangurki/%s.npy' % kao) # kangurki
+    X_kao = np.load('t_samples/%s.npy' % kao) # t_samples
 
     # Przygotowujemy walidację krzyżową
     skf = StratifiedKFold(n_splits=n_splits, random_state=1410, shuffle=True)

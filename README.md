@@ -1,23 +1,3 @@
 # Hybrid-Regression-Optimization
 
-## Skrypty
-
-### `e00_origins`
-- wykorzystuje `datasets`,
-- produkuje `origins.eps`
-
-### `e01`
-
-- klasyfikator korzysta z oversamplingu (ROS)
-- walidacja krzyżowa
-
-c -> y_cat
-y -> y_reg
-
-a_est -> a_reg
-r_est -> r_reg
-o_est -> o_reg
-
-
-ar-f (AWF)
-aro-f(BWF)
+> The latest trends in computer networks bring new challenges and complex optimization problems, one of which is link dimensioning in {Spectrally-Spatially Flexible Optical Networks}. The time-consuming calculations related to determining the objective function representing the amount of accepted traffic require heuristics to search for good quality solutions. In this work, we address this problem by proposing a hybrid regression model capable of the objective function estimation. The presented algorithm uses a machine learning model built on already evaluated solutions for choosing new promising ones, providing a fast and effective method for solving the considered problem. The experimental evaluation conducted on two representative network topologies demonstrates that the proposed approach can significantly outperform other methods in the case of the EURO28 topology, while for the US26 topology, it provides results comparable to the solutions obtained so far.

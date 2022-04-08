@@ -16,7 +16,7 @@ datasets = {
 # Iterujemy zbiory danych
 for filename in datasets:
     # Load dataset
-    dbname, f, kao = datasets[filename] # kao - identyfikator kangurka
+    dbname, f, kao = datasets[filename] # kao - tid
 
     print(dbname)
 
